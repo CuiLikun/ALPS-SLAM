@@ -1,0 +1,44 @@
+<launch>
+  <node pkg="terrain_analysis" type="terrainAnalysis" name="terrainAnalysis" output="screen" required="true">
+    
+    <!-- ========================================== -->
+    <!-- 核心修改区：必须夹在 node 标签中间！！！ -->
+    
+    <!-- 1. 点云：听原始雷达的 (量大管饱，最不容易出错) -->
+    <param name="registeredScanTopic" type="string" value="/velodyne_points" />
+    
+    <!-- 2. 定位：听 LIO-SAM 的 (精准定位) -->
+    <param name="odometryTopic" type="string" value="/lio_sam/mapping/odometry" />
+    
+    <!-- ========================================== -->
+
+    <param name="scanVoxelSize" type="double" value="0.05" />
+    <param name="decayTime" type="double" value="2.0" />
+    <param name="noDecayDis" type="double" value="4.0" />
+    <param name="clearingDis" type="double" value="8.0" />
+    <param name="useSorting" type="bool" value="false" />
+    <param name="quantileZ" type="double" value="0.25" />
+    <param name="considerDrop" type="bool" value="true" />
+    <param name="limitGroundLift" type="bool" value="false" />
+    <param name="maxGroundLift" type="double" value="0.15" />
+    <param name="clearDyObs" type="bool" value="true" />
+    <param name="minDyObsDis" type="double" value="0.3" />
+    <param name="minDyObsAngle" type="double" value="0" />
+    <param name="minDyObsRelZ" type="double" value="-0.5" />
+    <param name="absDyObsRelZThre" type="double" value="0.2" />
+    <param name="minDyObsVFOV" type="double" value="-16.0" />
+    <param name="maxDyObsVFOV" type="double" value="16.0" />
+    
+    <!-- 放宽门槛，保证出图 -->
+    <param name="minDyObsPointNum" type="int" value="0" />
+    <param name="noDataObstacle" type="bool" value="false" />
+    <param name="noDataBlockSkipNum" type="int" value="0" />
+    <param name="minBlockPointNum" type="int" value="1" />
+    <param name="vehicleHeight" type="double" value="1.5" />
+    <param name="voxelPointUpdateThre" type="int" value="1" />
+    <param name="voxelTimeUpdateThre" type="double" value="2.0" />
+    <param name="minRelZ" type="double" value="-2.5" />
+    <param name="maxRelZ" type="double" value="1.0" />
+    <param name="disRatioZ" type="double" value="0.2" />
+  </node>
+</launch>
