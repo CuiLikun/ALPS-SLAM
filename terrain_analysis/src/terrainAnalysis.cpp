@@ -662,23 +662,25 @@ int main(int argc, char **argv) {
       
       // 设置字段：x, y, z, intensity, rgb
       sensor_msgs::PointCloud2Modifier modifier(terrainCloud2);
-      modifier.setPointCloud2FieldsByString(2, "xyz", "rgb");
+      modifier.setPointCloud2FieldsByString(3, "xyz", "rgb", "intensity");
       modifier.resize(terrainCloudElev->points.size());
       
       // 创建迭代器
       sensor_msgs::PointCloud2Iterator<float> iter_x(terrainCloud2, "x");
       sensor_msgs::PointCloud2Iterator<float> iter_y(terrainCloud2, "y");
       sensor_msgs::PointCloud2Iterator<float> iter_z(terrainCloud2, "z");
+      sensor_msgs::PointCloud2Iterator<float> iter_intensity(terrainCloud2, "intensity");
       sensor_msgs::PointCloud2Iterator<uint8_t> iter_r(terrainCloud2, "r");
       sensor_msgs::PointCloud2Iterator<uint8_t> iter_g(terrainCloud2, "g");
       sensor_msgs::PointCloud2Iterator<uint8_t> iter_b(terrainCloud2, "b");
       
       // 填充数据并根据intensity设置颜色（从蓝色到红色的渐变）
       for (size_t i = 0; i < terrainCloudElev->points.size(); 
-           ++i, ++iter_x, ++iter_y, ++iter_z, ++iter_r, ++iter_g, ++iter_b) {
+           ++i, ++iter_x, ++iter_y, ++iter_z, ++iter_intensity, ++iter_r, ++iter_g, ++iter_b) {
         *iter_x = terrainCloudElev->points[i].x;
         *iter_y = terrainCloudElev->points[i].y;
         *iter_z = terrainCloudElev->points[i].z;
+        *iter_intensity = terrainCloudElev->points[i].intensity;
         
         // 根据intensity（0-100）设置RGB颜色：蓝色(低) -> 绿色(中) -> 红色(高)
         float intensity = terrainCloudElev->points[i].intensity;
