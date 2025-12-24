@@ -70,7 +70,7 @@
     
     <!-- 🔥🔥🔥 核心修改区：对接定位和底盘控制 🔥🔥🔥 -->
     <param name="stateEstimationTopic" type="string" value="/lio_sam/mapping/odometry" />
-    <param name="cmdVelTopic" type="string" value="/cmd_vel_stamped" />
+    <param name="cmdVelTopic" type="string" value="/cmd_vel" />
     <!-- 🔥🔥🔥 修改结束 🔥🔥🔥 -->
 
     <param name="sensorOffsetX" value="$(arg sensorOffsetX)" />
