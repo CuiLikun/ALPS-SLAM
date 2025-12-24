@@ -25,4 +25,7 @@
   <!-- 6. 强力 TF 连接 -->
   <node pkg="tf2_ros" type="static_transform_publisher" name="base_link_to_velodyne" args="0 0 0.085 0 0 0 base_link velodyne" />
 
+
+  <!-- 启动速度类型转换节点 -->
+  <node pkg="my_simulation" type="cmd_converter.py" name="cmd_converter" output="screen" />
 </launch>
