@@ -1,0 +1,114 @@
+<launch>
+
+  <arg name="sensorOffsetX" default="0"/>
+  <arg name="sensorOffsetY" default="0"/>
+  <arg name="cameraOffsetZ" default="0"/>
+  <arg name="twoWayDrive" default="true"/>
+  <arg name="maxSpeed" default="1.0"/> <!-- 修改：室内建议先设慢点，原2.0太快容易撞 -->
+  <arg name="autonomyMode" default="true"/>
+  <arg name="autonomySpeed" default="1.0"/>
+  <arg name="joyToSpeedDelay" default="2.0"/>
+  <arg name="goalX" default="0"/>
+  <arg name="goalY" default="0"/>
+
+  <!-- =================================================================================== -->
+  <!-- 核心节点 1: Local Planner (负责规划绿色的路径) -->
+  <!-- =================================================================================== -->
+  <node pkg="local_planner" type="localPlanner" name="localPlanner" output="screen" required="true">
+    
+    <!-- 🔥🔥🔥 核心修改区：必须对接 LIO-SAM 和 Terrain Analysis 🔥🔥🔥 -->
+    <param name="stateEstimationTopic" type="string" value="/lio_sam/mapping/odometry" />
+    <param name="registeredScanTopic" type="string" value="/lio_sam/mapping/cloud_registered" />
+    <param name="terrainVoxelTopic" type="string" value="/terrain_map" />
+    <!-- 🔥🔥🔥 修改结束 🔥🔥🔥 -->
+
+    <param name="pathFolder" type="string" value="$(find local_planner)/paths" />
+    <param name="vehicleLength" type="double" value="0.6" />
+    <param name="vehicleWidth" type="double" value="0.6" />
+    <param name="sensorOffsetX" value="$(arg sensorOffsetX)" />
+    <param name="sensorOffsetY" value="$(arg sensorOffsetY)" />
+    <param name="twoWayDrive" value="$(arg twoWayDrive)" />
+    <param name="laserVoxelSize" type="double" value="0.05" />
+    <param name="terrainVoxelSize" type="double" value="0.2" />
+    <param name="useTerrainAnalysis" type="bool" value="true" />
+    <param name="checkObstacle" type="bool" value="true" />
+    <param name="checkRotObstacle" type="bool" value="false" />
+    <param name="adjacentRange" type="double" value="4.25" />
+    <param name="obstacleHeightThre" type="double" value="0.15" />
+    <param name="groundHeightThre" type="double" value="0.1" />
+    <param name="costHeightThre" type="double" value="0.1" />
+    <param name="costScore" type="double" value="0.02" />
+    <param name="useCost" type="bool" value="false" />
+    <param name="pointPerPathThre" type="int" value="2" />
+    <param name="minRelZ" type="double" value="-0.5" />
+    <param name="maxRelZ" type="double" value="0.25" />
+    <param name="maxSpeed" value="$(arg maxSpeed)" />
+    <param name="dirWeight" type="double" value="0.02" />
+    <param name="dirThre" type="double" value="90.0" />
+    <param name="dirToVehicle" type="bool" value="false" />
+    <param name="pathScale" type="double" value="1.25" />
+    <param name="minPathScale" type="double" value="0.75" />
+    <param name="pathScaleStep" type="double" value="0.25" />
+    <param name="pathScaleBySpeed" type="bool" value="true" />
+    <param name="minPathRange" type="double" value="1.0" />
+    <param name="pathRangeStep" type="double" value="0.5" />
+    <param name="pathRangeBySpeed" type="bool" value="true" />
+    <param name="pathCropByGoal" type="bool" value="true" />
+    <param name="autonomyMode" value="$(arg autonomyMode)" />
+    <param name="autonomySpeed" value="$(arg autonomySpeed)" />
+    <param name="joyToSpeedDelay" value="$(arg joyToSpeedDelay)" />
+    <param name="joyToCheckObstacleDelay" type="double" value="5.0" />
+    <param name="goalClearRange" type="double" value="0.5" />
+    <param name="goalX" type="double" value="$(arg goalX)" />
+    <param name="goalY" type="double" value="$(arg goalY)" />
+  </node>
+
+  <!-- =================================================================================== -->
+  <!-- 核心节点 2: Path Follower (负责踩油门和打方向) -->
+  <!-- =================================================================================== -->
+  <node pkg="local_planner" type="pathFollower" name="pathFollower" output="screen" required="true">
+    
+    <!-- 🔥🔥🔥 核心修改区：对接定位和底盘控制 🔥🔥🔥 -->
+    <param name="stateEstimationTopic" type="string" value="/lio_sam/mapping/odometry" />
+    <param name="cmdVelTopic" type="string" value="/cmd_vel" />
+    <!-- 🔥🔥🔥 修改结束 🔥🔥🔥 -->
+
+    <param name="sensorOffsetX" value="$(arg sensorOffsetX)" />
+    <param name="sensorOffsetY" value="$(arg sensorOffsetY)" />
+    <param name="pubSkipNum" type="int" value="1" />
+    <param name="twoWayDrive" value="$(arg twoWayDrive)" />
+    <param name="lookAheadDis" type="double" value="0.5" />
+    <param name="yawRateGain" type="double" value="7.5" />
+    <param name="stopYawRateGain" type="double" value="7.5" />
+    <param name="maxYawRate" type="double" value="90.0" />
+    <param name="maxSpeed" value="$(arg maxSpeed)" />
+    <param name="maxAccel" type="double" value="2.5" />
+    <param name="switchTimeThre" type="double" value="1.0" />
+    <param name="dirDiffThre" type="double" value="0.1" />
+    <param name="stopDisThre" type="double" value="0.2" />
+    <param name="slowDwnDisThre" type="double" value="0.85" />
+    <param name="useInclRateToSlow" type="bool" value="false" />
+    <param name="inclRateThre" type="double" value="120.0" />
+    <param name="slowRate1" type="double" value="0.25" />
+    <param name="slowRate2" type="double" value="0.5" />
+    <param name="slowTime1" type="double" value="2.0" />
+    <param name="slowTime2" type="double" value="2.0" />
+    <param name="useInclToStop" type="bool" value="false" />
+    <param name="inclThre" type="double" value="45.0" />
+    <param name="stopTime" type="double" value="5.0" />
+    <param name="noRotAtStop" type="bool" value="false" />
+    <param name="noRotAtGoal" type="bool" value="true" />
+    <param name="autonomyMode" value="$(arg autonomyMode)" />
+    <param name="autonomySpeed" value="$(arg autonomySpeed)" />
+    <param name="joyToSpeedDelay" value="$(arg joyToSpeedDelay)" />
+  </node>
+
+  <!-- 
+    ❌ 删除原来的 static_transform_publisher 
+    你的 run_simulation.launch 里已经有完整的 TF 树了 (map->odom->base_link->velodyne)。
+    如果这里再发一个 /sensor->/vehicle 的 TF，会和现有 TF 树冲突或毫无意义，导致 Rviz 报错。
+  -->
+  <!-- <node pkg="tf" type="static_transform_publisher" name="vehicleTransPublisher" ... /> -->
+  <!-- <node pkg="tf" type="static_transform_publisher" name="sensorTransPublisher" ... /> -->
+
+</launch>
