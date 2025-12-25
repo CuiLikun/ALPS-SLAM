@@ -224,11 +224,16 @@ int main(int argc, char **argv) {
   nhPrivate.getParam("maxRelZ", maxRelZ);
   nhPrivate.getParam("disRatioZ", disRatioZ);
 
+  std::string odometryTopic = "/state_estimation";
+  nhPrivate.getParam("odometryTopic", odometryTopic);
+  std::string registeredScanTopic = "/registered_scan";
+  nhPrivate.getParam("registeredScanTopic", registeredScanTopic);
+
   ros::Subscriber subOdometry =
-      nh.subscribe<nav_msgs::Odometry>("/state_estimation", 5, odometryHandler);
+      nh.subscribe<nav_msgs::Odometry>(odometryTopic, 5, odometryHandler);
 
   ros::Subscriber subLaserCloud = nh.subscribe<sensor_msgs::PointCloud2>(
-      "/registered_scan", 5, laserCloudHandler);
+      registeredScanTopic, 5, laserCloudHandler);
 
   ros::Subscriber subJoystick =
       nh.subscribe<sensor_msgs::Joy>("/joy", 5, joystickHandler);
