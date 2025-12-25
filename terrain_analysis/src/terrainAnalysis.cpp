@@ -149,7 +149,41 @@ void laserCloudHandler(const sensor_msgs::PointCloud2ConstPtr &laserCloud2) {
   }
 
   laserCloud->clear();
-  pcl::fromROSMsg(*laserCloud2, *laserCloud);
+  
+  // 完全手动解析点云，避免 pcl::fromROSMsg 的字段检查问题
+  sensor_msgs::PointCloud2ConstIterator<float> iter_x(*laserCloud2, "x");
+  sensor_msgs::PointCloud2ConstIterator<float> iter_y(*laserCloud2, "y");
+  sensor_msgs::PointCloud2ConstIterator<float> iter_z(*laserCloud2, "z");
+  
+  // 检查是否有 intensity 字段
+  bool has_intensity = false;
+  for (const auto& field : laserCloud2->fields) {
+    if (field.name == "intensity") {
+      has_intensity = true;
+      break;
+    }
+  }
+  
+  if (has_intensity) {
+    sensor_msgs::PointCloud2ConstIterator<float> iter_i(*laserCloud2, "intensity");
+    for (; iter_x != iter_x.end(); ++iter_x, ++iter_y, ++iter_z, ++iter_i) {
+      pcl::PointXYZI point;
+      point.x = *iter_x;
+      point.y = *iter_y;
+      point.z = *iter_z;
+      point.intensity = *iter_i;
+      laserCloud->push_back(point);
+    }
+  } else {
+    for (; iter_x != iter_x.end(); ++iter_x, ++iter_y, ++iter_z) {
+      pcl::PointXYZI point;
+      point.x = *iter_x;
+      point.y = *iter_y;
+      point.z = *iter_z;
+      point.intensity = 0.0f;
+      laserCloud->push_back(point);
+    }
+  }
 
   pcl::PointXYZI point;
   laserCloudCrop->clear();
