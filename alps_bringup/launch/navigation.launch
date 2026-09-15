@@ -1,0 +1,33 @@
+<launch>
+  <!-- Start LIO-SAM/sensors separately, or use simulation.launch. -->
+  <arg name="exploration" default="true"/>
+  <arg name="auto_start" default="false"/>
+  <arg name="rviz" default="true"/>
+  <arg name="max_speed" default="0.3"/>
+  <arg name="odometry_topic" default="/lio_sam/mapping/odometry"/>
+  <arg name="cloud_topic" default="/lio_sam/mapping/cloud_registered_raw"/>
+
+  <node pkg="alps_bringup" type="lio_tare_bridge.py" name="lio_tare_bridge" output="screen" required="true">
+    <param name="odometry_topic" value="$(arg odometry_topic)"/>
+    <param name="cloud_topic" value="$(arg cloud_topic)"/>
+  </node>
+  <include file="$(find terrain_analysis)/launch/terrain_analysis.launch"/>
+  <include file="$(find terrain_analysis_ext)/launch/terrain_analysis_ext.launch"/>
+  <include file="$(find local_planner)/launch/local_planner.launch">
+    <arg name="cmdVelTopic" value="/navigation/cmd_vel"/>
+    <arg name="maxSpeed" value="$(arg max_speed)"/>
+    <arg name="autonomySpeed" value="$(arg max_speed)"/>
+  </include>
+  <node pkg="alps_bringup" type="navigation_guard.py" name="navigation_guard" output="screen" required="true">
+    <param name="waypoint_timeout" value="$(eval 5.0 if arg('exploration') else 0.0)"/>
+  </node>
+  <group if="$(arg exploration)">
+    <node pkg="tare_planner" type="tare_planner_node" name="tare_planner_node" ns="sensor_coverage_planner" output="screen" required="true">
+      <rosparam command="load" file="$(find tare_planner)/config/indoor.yaml"/>
+      <rosparam command="load" file="$(find alps_bringup)/config/tare_warehouse.yaml"/>
+      <param name="kAutoStart" value="$(arg auto_start)"/>
+    </node>
+  </group>
+  <node unless="$(arg exploration)" pkg="alps_bringup" type="goal_bridge.py" name="goal_bridge" output="screen" required="true"/>
+  <node if="$(arg rviz)" pkg="rviz" type="rviz" name="alps_rviz" args="-d $(find alps_bringup)/config/navigation.rviz"/>
+</launch>

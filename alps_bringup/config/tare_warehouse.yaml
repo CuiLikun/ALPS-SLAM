@@ -1,0 +1,13 @@
+# Overrides loaded after upstream indoor.yaml. Initial values, not tuned results.
+sub_state_estimation_topic_: /state_estimation_at_scan
+sub_registered_scan_topic_: /registered_scan
+sub_terrain_map_topic_: /terrain_map
+sub_terrain_map_ext_topic_: /terrain_map_ext
+pub_waypoint_topic_: /way_point
+kRushHome: false
+kExtendWayPoint: false
+kLookAheadDistance: 2.0
+kExtendWayPointDistanceBig: 2.0
+kExtendWayPointDistanceSmall: 1.0
+kTerrainCollisionThreshold: 0.15
+kViewPointHeightFromTerrain: 0.185

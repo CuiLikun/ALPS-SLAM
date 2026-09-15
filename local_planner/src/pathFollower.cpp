@@ -136,7 +136,11 @@ void pathHandler(const nav_msgs::Path::ConstPtr& pathIn)
   vehicleYawRec = vehicleYaw;
 
   pathPointID = 0;
-  pathInit = true;
+  pathInit = pathSize > 0;
+  if (!pathInit) {
+    vehicleSpeed = 0;
+    vehicleYawRate = 0;
+  }
 }
 
 void joystickHandler(const sensor_msgs::Joy::ConstPtr& joy)
@@ -240,6 +244,9 @@ int main(int argc, char** argv)
   while (status) {
     ros::spinOnce();
 
+    if (!pathInit) {
+      pubSpeed.publish(geometry_msgs::Twist());
+    }
     if (pathInit) {
       float vehicleXRel = cos(vehicleYawRec) * (vehicleX - vehicleXRec) 
                         + sin(vehicleYawRec) * (vehicleY - vehicleYRec);

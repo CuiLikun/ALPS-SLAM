@@ -1,1 +1,5 @@
-/opt/ros/noetic/share/catkin/cmake/toplevel.cmake
+cmake_minimum_required(VERSION 3.0.2)
+project(alps_workspace)
+set(CATKIN_TOPLEVEL TRUE)
+find_package(catkin REQUIRED)
+catkin_workspace()

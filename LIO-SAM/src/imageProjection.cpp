@@ -235,6 +235,11 @@ public:
         // get timestamp
         cloudHeader = currentCloudMsg.header;
         timeScanCur = cloudHeader.stamp.toSec();
+        if (laserCloudIn->empty())
+        {
+            ROS_WARN_THROTTLE(5.0, "Skipping empty lidar scan");
+            return false;
+        }
         timeScanEnd = timeScanCur + laserCloudIn->points.back().time;
 
         // check dense flag

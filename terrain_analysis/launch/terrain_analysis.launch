@@ -4,11 +4,11 @@
     <!-- ========================================== -->
     <!-- 核心修改区：必须夹在 node 标签中间！！！ -->
     
-    <!-- 1. 点云：听原始雷达的 (量大管饱，最不容易出错) -->
-    <param name="registeredScanTopic" type="string" value="/velodyne_points" />
+    <!-- Map-frame XYZ from the LIO bridge; raw sensor XYZ is not valid here. -->
+    <param name="registeredScanTopic" type="string" value="/registered_scan" />
     
     <!-- 2. 定位：听 LIO-SAM 的 (精准定位) -->
-    <param name="odometryTopic" type="string" value="/lio_sam/mapping/odometry" />
+    <param name="odometryTopic" type="string" value="/state_estimation" />
     
     <!-- ========================================== -->
 

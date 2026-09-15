@@ -1,5 +1,6 @@
 <launch>
-  <!-- 1. 强制开启仿真时间 (这一行是救命稻草) -->
+  <arg name="gui" default="true"/>
+  <!-- All sensors, mapping and planning use the Gazebo clock. -->
   <param name="/use_sim_time" value="true" />
 
   <!-- 2. 设置世界 -->
@@ -10,7 +11,7 @@
     <arg name="world_name" value="$(arg world_name)"/>
     <arg name="paused" value="false"/>
     <arg name="use_sim_time" value="true"/>
-    <arg name="gui" value="true"/>
+    <arg name="gui" value="$(arg gui)"/>
   </include>
 
   <!-- 4. 加载机器人 -->
@@ -22,10 +23,8 @@
   <!-- 5. 状态发布 -->
   <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" />
   
-  <!-- 6. 强力 TF 连接 -->
-  <node pkg="tf2_ros" type="static_transform_publisher" name="base_link_to_velodyne" args="0 0 0.085 0 0 0 base_link velodyne" />
+  <!-- robot_state_publisher owns base_link -> velodyne from the URDF. -->
 
 
-  <!-- 启动速度类型转换节点 -->
-  <node pkg="my_simulation" type="cmd_converter.py" name="cmd_converter" output="screen" />
+  <!-- pathFollower/guard already publish geometry_msgs/Twist. -->
 </launch>

@@ -1,0 +1,7 @@
+# Overrides for my_simulation/urdf/my_robot.xacro only.
+lio_sam:
+  Horizon_SCAN: 440
+  # T_lidar_imu: IMU is 8.5 cm below the lidar, aligned axes.
+  extrinsicTrans: [0.0, 0.0, -0.085]
+  # TARE stores accumulated geometry without loop-closure reintegration.
+  loopClosureEnableFlag: false

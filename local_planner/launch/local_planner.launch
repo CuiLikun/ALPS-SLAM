@@ -1,4 +1,7 @@
 <launch>
+  <arg name="stateEstimationTopic" default="/state_estimation"/>
+  <arg name="registeredScanTopic" default="/registered_scan"/>
+  <arg name="cmdVelTopic" default="/cmd_vel"/>
 
   <arg name="sensorOffsetX" default="0"/>
   <arg name="sensorOffsetY" default="0"/>
@@ -16,11 +19,9 @@
   <!-- =================================================================================== -->
   <node pkg="local_planner" type="localPlanner" name="localPlanner" output="screen" required="true">
     
-    <!-- 🔥🔥🔥 核心修改区：必须对接 LIO-SAM 和 Terrain Analysis 🔥🔥🔥 -->
-    <param name="stateEstimationTopic" type="string" value="/lio_sam/mapping/odometry" />
-    <param name="registeredScanTopic" type="string" value="/lio_sam/mapping/cloud_registered" />
-    <param name="terrainVoxelTopic" type="string" value="/terrain_map" />
-    <!-- 🔥🔥🔥 修改结束 🔥🔥🔥 -->
+    <!-- These C++ nodes use fixed topic names; connect them with ROS remaps. -->
+    <remap from="/state_estimation" to="$(arg stateEstimationTopic)" />
+    <remap from="/registered_scan" to="$(arg registeredScanTopic)" />
 
     <param name="pathFolder" type="string" value="$(find local_planner)/paths" />
     <param name="vehicleLength" type="double" value="0.6" />
@@ -68,10 +69,9 @@
   <!-- =================================================================================== -->
   <node pkg="local_planner" type="pathFollower" name="pathFollower" output="screen" required="true">
     
-    <!-- 🔥🔥🔥 核心修改区：对接定位和底盘控制 🔥🔥🔥 -->
-    <param name="stateEstimationTopic" type="string" value="/lio_sam/mapping/odometry" />
-    <param name="cmdVelTopic" type="string" value="/cmd_vel" />
-    <!-- 🔥🔥🔥 修改结束 🔥🔥🔥 -->
+    <!-- The unified bringup routes Twist through navigation_guard. -->
+    <remap from="/state_estimation" to="$(arg stateEstimationTopic)" />
+    <param name="cmdVelTopic" type="string" value="$(arg cmdVelTopic)" />
 
     <param name="sensorOffsetX" value="$(arg sensorOffsetX)" />
     <param name="sensorOffsetY" value="$(arg sensorOffsetY)" />
@@ -103,12 +103,6 @@
     <param name="joyToSpeedDelay" value="$(arg joyToSpeedDelay)" />
   </node>
 
-  <!-- 
-    ❌ 删除原来的 static_transform_publisher 
-    你的 run_simulation.launch 里已经有完整的 TF 树了 (map->odom->base_link->velodyne)。
-    如果这里再发一个 /sensor->/vehicle 的 TF，会和现有 TF 树冲突或毫无意义，导致 Rviz 报错。
-  -->
-  <!-- <node pkg="tf" type="static_transform_publisher" name="vehicleTransPublisher" ... /> -->
-  <!-- <node pkg="tf" type="static_transform_publisher" name="sensorTransPublisher" ... /> -->
+  <!-- lio_tare_bridge publishes sensor and yaw-aligned vehicle transforms. -->
 
 </launch>

@@ -1,0 +1,20 @@
+<launch>
+  <arg name="exploration" default="true"/>
+  <arg name="auto_start" default="false"/>
+  <arg name="rviz" default="true"/>
+  <arg name="gui" default="true"/>
+  <arg name="max_speed" default="0.3"/>
+  <include file="$(find my_simulation)/launch/run_simulation.launch">
+    <arg name="gui" value="$(arg gui)"/>
+  </include>
+  <rosparam command="load" file="$(find lio_sam)/config/params.yaml"/>
+  <rosparam command="load" file="$(find alps_bringup)/config/lio_simulation.yaml"/>
+  <!-- Simulation already supplies robot_description and robot_state_publisher. -->
+  <include file="$(find lio_sam)/launch/include/module_loam.launch"/>
+  <include file="$(find alps_bringup)/launch/navigation.launch">
+    <arg name="exploration" value="$(arg exploration)"/>
+    <arg name="auto_start" value="$(arg auto_start)"/>
+    <arg name="rviz" value="$(arg rviz)"/>
+    <arg name="max_speed" value="$(arg max_speed)"/>
+  </include>
+</launch>

@@ -1,0 +1,42 @@
+Panels:
+  - Class: rviz/Displays
+    Name: Displays
+Visualization Manager:
+  Class: ""
+  Global Options:
+    Fixed Frame: map
+    Frame Rate: 30
+  Displays:
+    - Class: rviz/Grid
+      Name: Grid
+      Enabled: true
+    - Class: rviz/PointCloud2
+      Name: Registered scan
+      Enabled: true
+      Topic: /registered_scan
+      Size (m): 0.03
+      Color Transformer: Intensity
+    - Class: rviz/PointCloud2
+      Name: Terrain
+      Enabled: true
+      Topic: /terrain_map
+      Size (m): 0.05
+      Color Transformer: Intensity
+    - Class: rviz/Path
+      Name: Local path
+      Enabled: true
+      Topic: /path
+    - Class: rviz/TF
+      Name: TF
+      Enabled: false
+  Tools:
+    - Class: rviz/Interact
+    - Class: rviz/MoveCamera
+    - Class: rviz/SetGoal
+      Topic: /move_base_simple/goal
+  Views:
+    Current:
+      Class: rviz/Orbit
+      Distance: 15
+      Pitch: 0.8
+      Yaw: 0.8

@@ -347,9 +347,6 @@ int main(int argc, char **argv) {
 
       while (vehicleY - terrainVoxelCenY > terrainVoxelSize)
       {
-        ros::Subscriber subClearing =
-            nh.subscribe<std_msgs::Float32>("/map_clearing", 5, clearingHandler);
-
         for (int indX = 0; indX < terrainVoxelWidth; indX++) {
           pcl::PointCloud<pcl::PointXYZI>::Ptr terrainVoxelCloudPtr =
               terrainVoxelCloud[terrainVoxelWidth * indX];
