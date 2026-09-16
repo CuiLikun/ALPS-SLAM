@@ -11,48 +11,15 @@
 
 ### 技术路线：自主探索
 
-对应项目展示图左侧的“路线① 自主探索”，以 LIO-SAM 提供定位与地图、
-TARE 选择探索目标，并通过地形分析、局部避障和底盘控制形成探索闭环。
-下图是技术路线示意，不代表已经完成仿真验收。
+![ALPS-SLAM 自主探索技术路线：LIO-SAM 定位建图、TARE 探索目标生成、地形分析、局部避障和 ROS 控制执行](docs/images/autonomous-exploration.png)
 
-```mermaid
-flowchart TB
-    S["激光雷达 + IMU"] --> L["① LIO-SAM<br/>激光惯性定位与三维建图"]
-    L --> T["② 探索目标生成 · TARE<br/>维护探索状态，选择目标与探索路线"]
-    L --> A["③ 可通行性分析<br/>地形分析与障碍物识别"]
-    A -->|地形与碰撞信息| T
-    T -->|探索航点| P["④ 局部规划<br/>候选路径碰撞检查与局部避障"]
-    A --> P
-    P --> R["⑤ ROS 系统集成与执行<br/>路径跟踪 → 速度保护 → 底盘控制"]
-    R -->|移动后持续更新观测| S
+*AI 生成的概念示意图，展示模块职责与探索场景；不是实际运行截图或实验结果。*
 
-    classDef perception fill:#eef4ff,stroke:#174a9c,color:#102c59;
-    classDef planning fill:#e9f8fa,stroke:#078394,color:#075665;
-    classDef execution fill:#eef8ed,stroke:#25824a,color:#174e2c;
-    class S,L perception;
-    class T,A,P planning;
-    class R execution;
-```
+LIO-SAM 提供位姿与配准点云，地形分析同时为 TARE 和局部规划提供可通行性信息。
+TARE 生成探索航点，局部规划与路径跟踪将其转换为底盘速度，经过输入时效检查后执行。
+图中五个模块的编号用于介绍职责，不表示严格串行的数据流。
 
-可通行性分析同时服务 TARE 与局部规划，因此图中保留这两条数据连接。
-ROS 集成贯穿所有模块，第⑤步突出的是将规划结果交给路径跟踪和底盘执行。
-参考图右侧的 FAR + FAST-LIO 目标点导航属于另一条路线，当前仓库未集成。
-
-### 模块连接
-
-```mermaid
-flowchart TD
-    A[Gazebo / 实机 LiDAR + IMU] --> B[LIO-SAM]
-    B --> C[同时间戳位姿与稠密配准点云适配]
-    C --> D[地形分析 terrain_analysis / ext]
-    C --> E[TARE 全局与局部探索规划]
-    D --> E
-    E -->|/way_point| F[localPlanner 局部避障]
-    D --> F
-    F -->|/path| G[pathFollower 路径跟踪]
-    G --> H[输入时效检查 navigation_guard]
-    H -->|/cmd_vel: Twist| A
-```
+### 模块职责
 
 - `LIO-SAM`：激光与惯性融合的位姿估计、三维建图。
 - `terrain_analysis`、`terrain_analysis_ext`：从世界坐标系点云生成地形信息，供碰撞检查使用。
